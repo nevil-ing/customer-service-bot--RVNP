@@ -5,7 +5,7 @@ url = 'https://rvist.ac.ke/'
 page = urlopen(url)
 html = page.read().decode('utf-8')
 soup = BeautifulSoup(html, 'html.parser')
-
+""""
 def scrape_courses():
     courses = []
     courses_section = soup.find('li', id='menu-item-1637')  
@@ -133,3 +133,4 @@ def scrape_hostel_booking():
         if ordered_list:
             hostel_booking['list_items'] = [li.get_text().strip() for li in ordered_list.find_all('li')]
     return hostel_booking
+"""

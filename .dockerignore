@@ -1,0 +1,42 @@
+# Virtual environment
+.venv/
+env/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Git files
+.git/
+.gitignore
+
+# IDE files
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables file (IMPORTANT!)
+.env
+*.env.*
+
+# Test files/reports (optional)
+tests/
+htmlcov/
+.pytest_cache/
+.coverage
+
+# Docker files (sometimes useful to ignore)
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
+
+# Other specific files/dirs
+# alembic/versions/* # Keep if you run migrations from container, ignore if not
+migration.sql
+*.log
+*.log.*
