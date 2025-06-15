@@ -19,7 +19,7 @@ print("Loading RAG data and building system prompt...")
 rag_data = load_and_process_rag_data()
 SYSTEM_INSTRUCTION = create_system_prompt(rag_data)
 print("System prompt created successfully.")
-# Optional: print(SYSTEM_INSTRUCTION) to debug the generated prompt
+
 
 # --- Application Setup ---
 app = FastAPI(
@@ -40,7 +40,7 @@ if not gemini_api_key:
 genai.configure(api_key=gemini_api_key)
 
 generation_config = {
-    "temperature": 0.7, # Lowered for more factual, less creative responses
+    "temperature": 0.7,
     "top_p": 0.95,
     "top_k": 64,
     "max_output_tokens": 8192,
@@ -48,9 +48,9 @@ generation_config = {
 }
 
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-pro",
+    model_name="gemini-2.0-pro",
     generation_config=generation_config,
-    system_instruction=SYSTEM_INSTRUCTION # Use the dynamically generated prompt
+    system_instruction=SYSTEM_INSTRUCTION 
 )
 
 # --- Static Files and Templates Mounting ---
