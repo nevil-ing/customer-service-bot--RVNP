@@ -9,7 +9,7 @@ INPUT_FILES_TO_COMBINE = [
     "hef_data_for_rag.jsonl",
 ]
 
-# Name of the output combined file
+
 COMBINED_OUTPUT_FILE = "combined_rag_data.jsonl"
 output_file_path = os.path.join(DATASET_DIR, COMBINED_OUTPUT_FILE)
 
@@ -19,8 +19,7 @@ def combine_jsonl_files():
     into a single output .jsonl file in the same directory.
     """
     print(f"Combining JSONL files into: {output_file_path}")
-    
-    # Ensure dataset directory exists 
+
     if not os.path.exists(DATASET_DIR):
         print(f"Error: Dataset directory '{DATASET_DIR}' not found.")
         return
@@ -34,10 +33,10 @@ def combine_jsonl_files():
                 with open(input_file_path, 'r', encoding='utf-8') as infile:
                     for line_number, line in enumerate(infile, 1):
                         line_content = line.strip()
-                        if not line_content: # Skip empty lines
+                        if not line_content: 
                             continue
                         try:
-                            # Validate if it's JSON, just in case
+                            
                             json.loads(line_content) 
                             outfile.write(line_content + '\n') 
                             record_count += 1

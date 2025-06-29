@@ -1,2 +1,15 @@
-env
+
 .env
+
+
+__pycache__/
+*.pyc
+
+
+.venv
+/dist/
+/build/
+
+
+.vscode/
+.idea/

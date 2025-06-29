@@ -1,15 +1,14 @@
-# Dockerfile
 
-FROM python:3.13-slim-bullseye as builder
 
-# Set environment variables
+
+FROM python:3.13-slim-bullseye AS builder
+
+
 ENV PYTHONUNBUFFERED=1 \
-    # Poetry settings:
     POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_HOME="/opt/poetry" \
     POETRY_CACHE_DIR="/opt/.cache"
-
 
 ENV PATH="$POETRY_HOME/bin:$PATH"
 
@@ -20,18 +19,20 @@ RUN apt-get update && apt-get install --no-install-recommends -y curl \
 
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock ./
 
+COPY pyproject.toml poetry.lock ./
 
 RUN poetry install --no-root --sync
 
-FROM python:3.13-slim-bullseye as runtime
+
+FROM python:3.13-slim-bullseye AS runtime
 
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONPATH="/app/.venv/lib/python3.13/site-packages" \
-    PATH="/app/.venv/bin:$PATH" \ 
+    
+    PYTHONPATH="/app" \
+    PATH="/app/.venv/bin:$PATH" \
     APP_HOST="0.0.0.0" \
-    APP_PORT="8000"
+    APP_PORT=8001
 
 WORKDIR /app
 
@@ -41,4 +42,5 @@ COPY src/ ./src/
 
 EXPOSE ${APP_PORT}
 
-CMD uvicorn src.main:app --host ${APP_HOST} --port ${APP_PORT}
+
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8001"]

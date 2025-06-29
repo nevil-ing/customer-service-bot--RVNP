@@ -1,83 +1,96 @@
 import os
-import google.generativeai as genai
+import logging
+from pathlib import Path
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from dotenv import load_dotenv
+from openai import OpenAI
+import uvicorn
 
-# Import the new services
+#Custom services
 from .services.data_loader import load_and_process_rag_data
 from .services.prompt_builder import create_system_prompt
 
-# Load environment variables from .env file
+
 load_dotenv()
 
-# --- RAG Data and Prompt Setup (Runs once at application startup) ---
+
+
 print("Loading RAG data and building system prompt...")
 rag_data = load_and_process_rag_data()
 SYSTEM_INSTRUCTION = create_system_prompt(rag_data)
 print("System prompt created successfully.")
-# Optional: print(SYSTEM_INSTRUCTION) to debug the generated prompt
 
-# --- Application Setup ---
+
 app = FastAPI(
     title="Customer Service Bot",
     description="A FastAPI-based chatbot for the RVNP website.",
     version="1.0.0"
 )
 
-# --- Pydantic Models for Request/Response ---
-class ChatRequest(BaseModel):
-    message: str
-
-# --- Gemini API Configuration ---
-gemini_api_key = os.getenv('GEMINI_API_KEY')
-if not gemini_api_key:
-    raise ValueError("GEMINI_API_KEY environment variable not set.")
-
-genai.configure(api_key=gemini_api_key)
-
-generation_config = {
-    "temperature": 0.7, # Lowered for more factual, less creative responses
-    "top_p": 0.95,
-    "top_k": 64,
-    "max_output_tokens": 8192,
-    "response_mime_type": "text/plain",
-}
-
-model = genai.GenerativeModel(
-    model_name="gemini-1.5-pro",
-    generation_config=generation_config,
-    system_instruction=SYSTEM_INSTRUCTION # Use the dynamically generated prompt
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# --- Static Files and Templates Mounting ---
-app.mount("/static", StaticFiles(directory="src/views/static"), name="static")
-templates = Jinja2Templates(directory="src/views/templates")
+BASE_DIR = Path(__file__).resolve().parent
+app.mount("/static", StaticFiles(directory=BASE_DIR / "views" / "static"), name="static")
+templates = Jinja2Templates(directory=BASE_DIR / "views" / "templates")
 
-# --- API Endpoints ---
+class ChatRequest(BaseModel):
+    message: str
+# groq config
+groq_api_key = os.getenv('GROQ_API_KEY')
+if not groq_api_key:
+    raise ValueError("GROQ_API_KEY environment variable not set. Please add it to your .env file.")
+client = OpenAI(
+    api_key=groq_api_key,
+    base_url="https://api.groq.com/openai/v1", 
+)
+
+#In-memory Chat Sessions
+#chat_sessions = {}
+
+#Routes
 @app.get("/", response_class=HTMLResponse, tags=["Frontend"])
 async def serve_frontend(request: Request):
-    """
-    Serves the main chatbot HTML interface.
-    """
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/chat", tags=["Chatbot"])
-async def chat(chat_request: ChatRequest):
-    """
-    Handles the chat logic, receiving a message and returning the bot's response.
-    """
+async def chat(chat_request: ChatRequest, request: Request):
     try:
         user_message = chat_request.message
         
-        chat_session = model.start_chat(history=[])
-        response = chat_session.send_message(user_message)
+        messages = [
+            {"role": "system", "content": SYSTEM_INSTRUCTION},
+            {"role": "user", "content": user_message}
+        ]
+
+      
+
+       # API call
+        response = client.chat.completions.create(
+            model="llama3-8b-8192", 
+            messages=messages,
+            temperature=0.7,
+            max_tokens=1024
+        )
         
-        return JSONResponse(content={'response': response.text})
+        bot_response = response.choices[0].message.content
+        return JSONResponse(content={'response': bot_response})
 
     except Exception as e:
-        print(f"Error during chat processing: {e}")
-        return JSONResponse(status_code=500, content={'error': 'An internal error occurred.'})
+        logging.exception("Chat error:")
+        return JSONResponse(status_code=500, content={"error": "Internal server error"})
+    
+    
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+        

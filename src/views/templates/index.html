@@ -3,12 +3,12 @@
 <head>
     <meta charset="utf-8">
     <title>CHATBOT</title>
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', path='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <script src="{{ url_for('static', path='script.js') }}" defer></script>
 </head>
 <body>
     <button class="toggle-chat" aria-label="Toggle Chat">
@@ -17,13 +17,13 @@
     </button>
     <div class="chat-interface">
         <header>
-            <img src="{{ url_for('static', filename='images/logo-rvnp.png') }}" alt="RVIST" class="header-logo">
+            <img src="{{ url_for('static', path='images/logo-rvnp.png') }}" alt="RVIST" class="header-logo">
             <h2>RVNP BOT</h2>
             <span class="close-btn material-symbols-rounded" role="button" aria-label="Close chat">close</span>
         </header>
         <ul class="message-box">
             <li class="message incoming">
-                <img src="{{ url_for('static', filename='images/rvistlogo.jpg') }}" alt="Rvist Logo" class="chat-icon">
+                <img src="{{ url_for('static', path='images/rvistlogo.jpg') }}" alt="Rvist Logo" class="chat-icon">
                 <p>Hi there 👋<br>How can I help you today?</p>
             </li>
         </ul>
