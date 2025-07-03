@@ -47,6 +47,11 @@ def load_and_process_rag_data() -> Dict[str, List[Any]]:
                 
                 if "faq_list" in record and isinstance(record["faq_list"], list):
                     categorized_data["faqs"].extend(record["faq_list"])
+                    
+                elif content_type == "courses_detailed":
+                        categorized_data["courses_detailed"] = record.get("data", [])
+                elif content_type == "fees_structure":
+                        categorized_data["fees_structure"] = record  
 
             except json.JSONDecodeError:
                 print(f"Warning: Skipping malformed line in {DATASET_FILE}")
