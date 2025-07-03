@@ -79,7 +79,7 @@ async def chat(chat_request: ChatRequest, request: Request):
         response = client.chat.completions.create(
             model="llama3-8b-8192", 
             messages=messages,
-            temperature=0.7,
+            temperature=0.3,
             max_tokens=1024
         )
         
